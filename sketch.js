@@ -15,8 +15,17 @@ let vangleX = 0;
 let vangleY = 0;
 let vangleZ = 0;
 
+let start_z = 40;
 
-let friction = 0.97;
+
+let dice_size = 80;
+
+let noppia = 3;
+
+let friction = 0.98;
+let friction_table = 0.94;
+let throw_dices_distance = 5;
+let distance_dice = 100;
 
 var select_example = 0;
 
@@ -31,11 +40,14 @@ let cam;
 
 let kitten;
 let graphics;
-let love;
+let dicesumtext;
 
+
+var nopat = [];
 
 function preload() {
-	img = loadImage('pics/s1.jpg');
+	img1 = loadImage('pics/s1.jpg');
+	img2 = loadImage('pics/s2.jpg');
 	myFont = loadFont('assets/Pokemon Solid.ttf');
 
 	if (useobj) {
@@ -47,6 +59,15 @@ function preload() {
 
 }
 
+
+function deviceShaken() {
+	// https://p5js.org/reference/#/p5/setShakeThreshold
+
+	for (var i = 0; i < nopat.length; i++) {
+		nopat[i].shake();
+	}
+
+}
 
 function setup() {
 	// cnv = createCanvas(windowWidth, windowHeight, WEBGL);
@@ -70,12 +91,12 @@ function setup() {
 	// colorMode(HSB, 360, 100, 100);
 	// rectMode(CENTER);
 
-	love = createGraphics(300, 300);
-	//love.background(255, 100);
-	love.fill(255);
-	love.textAlign(CENTER);
-	love.textSize(64);
-	love.text('love', 150, 150);
+	dicesumtext = createGraphics(300, 300);
+	dicesumtext.background(255, 100);
+	dicesumtext.fill(255);
+	dicesumtext.textAlign(CENTER);
+	dicesumtext.textSize(64);
+	
 
 	setInterval(timeIt, 100); // https://editor.p5js.org/denaplesk2/sketches/ryIBFP_lG
 
@@ -90,6 +111,17 @@ function setup() {
 
 
 	// print(train);
+
+
+
+	for (i = 0; i < noppia; i++) {
+		nopat[i] = new Noppa(i, 0, 0, 0 ,0,0,0,0,0,0,0,0,0);
+		nopat[i].start();
+
+	}
+
+	
+	
 
 }
 
@@ -111,17 +143,41 @@ function nollaus() {
 // auto indect in vscode: shift-alt-f
 
 function draw() {
-
+	orbitControl();
 	background(25);
 
-	angleX = angleX + vangleX;
-	vangleX = vangleX * friction;
+	dicesumtext.background(255, 100);
+	dicesumtext.fill(0);
 
-	angleY = angleY + vangleY;
-	vangleY = vangleY * friction;
 
-	angleZ = angleZ + vangleZ;
-	vangleZ = vangleZ * friction;
+	var totalscore = 0;
+	dicesumtext.fill(0);
+	for (var i = 0; i < nopat.length; i++) {
+		totalscore = totalscore + nopat[i].value;
+		dicesumtext.text(nopat[i].value, distance_dice/2 + i * distance_dice, 50); // note different coordination system
+	}
+
+	dicesumtext.text(totalscore, 150, 150);
+
+	noStroke();
+	// ambientMaterial(255);
+	texture(dicesumtext);
+	plane((noppia + 2)*distance_dice*2, 300);
+
+
+	// push();
+	// translate(0, 0, 0);
+	// text(random(0,25));
+	// pop();
+
+	// angleX = angleX + vangleX;
+	// vangleX = vangleX * friction;
+
+	// angleY = angleY + vangleY;
+	// vangleY = vangleY * friction;
+
+	// angleZ = angleZ + vangleZ;
+	// vangleZ = vangleZ * friction;
 
 
 	// camera(angleX, angleY, angleZ, 0, 0, 0, 0, 1, 0);
@@ -181,7 +237,7 @@ function draw() {
 
 		noStroke();
 		//ambientMaterial(0, 0, 255);
-		texture(img);
+		texture(img1);
 		//torus(100, 25);
 		box(100);
 		pop();
@@ -205,23 +261,11 @@ function draw() {
 		v.div(100);
 
 		// ambientLight(0, 0, 255);
-		ambientLight(100); // white light
+		ambientLight(200); // white light
 		directionalLight(122, 122, 122, v);
 
 
-		push();
-		rotateX(angleX);
-		rotateY(angleY);
-		rotateZ(angleZ);
-
-		translate(100, 0, 0);
-
-		noStroke();
-		//ambientMaterial(0, 0, 255);
-		texture(img);
-		//torus(100, 25);
-		box(100);
-		pop();
+		
 
 
 
@@ -233,7 +277,7 @@ function draw() {
 			rotateX(angleX);
 			rotateY(angleY);
 			rotateZ(angleZ);
-			texture(img);
+			texture(img1);
 
 			ambientLight(100); // white light
 			directionalLight(122, 122, 122, v);
@@ -242,6 +286,43 @@ function draw() {
 			pop();
 		}
 
+
+
+
+
+	
+
+	}
+
+
+	for (var i = 0; i < nopat.length; i++) {
+		nopat[i].ax = nopat[i].ax + nopat[i].vax;
+		nopat[i].vax = nopat[i].vax * friction;
+
+		nopat[i].ay = nopat[i].ay + nopat[i].vay;
+		nopat[i].vay = nopat[i].vay * friction;
+
+		nopat[i].az = nopat[i].az + nopat[i].vaz;
+		nopat[i].vaz = nopat[i].vaz * friction;
+
+
+
+		nopat[i].x = nopat[i].x + nopat[i].vx;
+		nopat[i].vx = nopat[i].vx * friction_table;
+
+		nopat[i].y = nopat[i].y + nopat[i].vy;
+		nopat[i].vy = nopat[i].vy * friction_table;
+
+		nopat[i].z = nopat[i].z + nopat[i].vz;
+		nopat[i].vz = nopat[i].vz * friction_table;
+	}
+
+
+	
+
+
+	for (var i = 0; i < nopat.length; i++) {
+		nopat[i].show();
 	}
 
 
@@ -257,6 +338,13 @@ function draw() {
 function touchMoved() {
 
 	print("moving");
+
+
+	if (touches.length == 5) {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].start();
+		}
+	}
 
 }
 
@@ -380,6 +468,34 @@ function keyPressed() {
 		vangleZ = vangleZ + 1;
 	}
 
+
+
+	if (key == 's') {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].shake();
+		}
+	}
+
+	if (key == 'r') {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].round();
+		}
+	}
+
+
+	if (key == 'n') {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].start();
+		}
+	}
+
+
+	if (key == 't') {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].totable();
+		}
+	}
+
 	return false;
 }
 
@@ -397,3 +513,115 @@ function timeIt() {
 document.ontouchmove = function (event) {
 	event.preventDefault();
 };
+
+
+
+class Nappi {
+	constructor(id_, name_, key_, x_, y_, size_) {
+		this.id = this.id_;
+		this.name = this.name_;
+		this.x = x_;
+		this.y = y_;
+		this.size = this.size_;
+	}
+
+	show() {
+		
+	}
+
+
+}
+
+class Noppa {
+	constructor(id_, x_, y_, z_, vx_, vy_, vz_, ax_, ay_, az_, vax_, vay_, vaz_) {
+		this.id = id_;
+		this.x = x_;
+		this.y = y_;
+		this.z = z_;
+		this.vx = vx_;
+		this.vy = vy_;
+		this.vz = vz_;
+		this.ax = ax_;
+		this.ay = ay_;
+		this.az = az_;
+		this.vax = vax_;
+		this.vay = vay_;
+		this.vaz = vaz_;
+		this.value = 1;
+		this.image_id = 1;
+		this.size = dice_size;
+	}
+
+	show() {
+
+		push();
+
+		translate(this.x, this.y, this.z);
+
+		rotateX(this.ax);
+		rotateY(this.ay);
+		rotateZ(this.az);
+
+		
+
+		noStroke();
+		//ambientMaterial(0, 0, 255);
+		
+
+
+		this.value = floor((this.ax % 60) / 10) + 1;
+		this.image_id = floor((this.ax % 90) / 45) + 1;
+
+		if (this.image_id == 1) {
+			texture(img1);
+		} else {
+			texture(img2);
+		}
+		//texture(img1);
+		//torus(100, 25);
+		box(this.size);
+		pop();
+	}
+
+	shake() {
+		this.vax = random(-10,10) + random(70,100);
+		this.vay = random(-30,30);
+		this.vaz = random(-30,30);
+
+		this.vx = random(-throw_dices_distance,throw_dices_distance);
+		this.vy = random(-throw_dices_distance,throw_dices_distance);
+		this.vz = random(0,throw_dices_distance/2);
+
+	}
+
+	round() {
+
+		// angle round:
+		this.ax = round(this.ax/90)*90;
+		this.ay = round(this.ay/90)*90;
+		this.az = round(this.az/90)*90;
+
+		// this.ax = round(this.ax/1)*1;
+		this.az = round(this.az/1)*1;
+
+		this.ax = this.ax % 360;
+		this.ay = this.ay % 360;
+		this.az = this.az % 360;
+
+		print(this.id + ": " + this.ax + "," + this.ay + "," + this.az);
+
+	}
+
+	start() {
+		this.x = (this.id-(noppia/2 - 0.5)) * distance_dice;
+		this.y = 0;
+		this.z = start_z;
+	}
+
+	totable() {
+		this.round();
+		this.z = start_z;
+	}
+
+
+}
