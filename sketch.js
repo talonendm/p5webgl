@@ -24,10 +24,10 @@ let stop_vz = 10;
 
 let dice_size = 80;
 
-let noppia = 3;
+var noppia = 3;
 
 let plane_y_size = 800;
-let firstgame = true;
+var firstgame = true;
 
 let friction = 0.9999;
 let friction_table = 0.74;
@@ -100,7 +100,7 @@ function setup() {
 	// colorMode(HSB, 360, 100, 100);
 	// rectMode(CENTER);
 
-	dicesumtext = createGraphics(300, 300);
+	dicesumtext = createGraphics(500, 500);
 	dicesumtext.background(0, 50, 0);
 	dicesumtext.fill(255);
 	dicesumtext.textAlign(CENTER);
@@ -130,7 +130,21 @@ function setup() {
 	}
 
 
+// https://stackoverflow.com/questions/68242398/how-to-return-the-camera-position-in-p5js
+	camera = createCamera();
+  // optionally, call camera() on the instance with the same arguments as the global function
+  //camera.camera([x], [y], [z], [centerX], [centerY], [centerZ], [upX], [upY], [upZ])
 
+
+   print(camera.X);
+   print(camera.Y);
+   print(camera.z);
+
+   print(camera.centerX);
+   print(camera.centerY);
+   print(camera.centerZ);
+
+	print(camera.eyeZ);
 
 }
 
@@ -404,6 +418,8 @@ function touchMoved() {
 	if (touches.length == 5) {
 		for (var i = 0; i < nopat.length; i++) {
 			nopat[i].start();
+			nopat[i].shake();
+			firstgame = false;
 		}
 	}
 
