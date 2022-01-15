@@ -72,9 +72,15 @@ function preload() {
 function deviceShaken() {
 	// https://p5js.org/reference/#/p5/setShakeThreshold
 
+
+
 	for (var i = 0; i < nopat.length; i++) {
+		nopat[i].start();
 		nopat[i].shake();
+		firstgame = false;
 	}
+
+	
 
 }
 
@@ -121,6 +127,8 @@ function setup() {
 
 	// print(train);
 
+	let threshold_shake = 20; // 30 default
+	setShakeThreshold(threshold_shake);
 
 
 	for (i = 0; i < noppia; i++) {
@@ -133,8 +141,12 @@ function setup() {
 // https://stackoverflow.com/questions/68242398/how-to-return-the-camera-position-in-p5js
 	camera = createCamera();
   // optionally, call camera() on the instance with the same arguments as the global function
-  //camera.camera([x], [y], [z], [centerX], [centerY], [centerZ], [upX], [upY], [upZ])
+   // camera.camera([x], [y], [z], [centerX], [centerY], [centerZ], [upX], [upY], [upZ])
 
+
+
+    camera.lookAt(100, 10, -40);
+    camera.setPosition(sin(0 / 600) * 200 + 400, 200, 800);
 
    print(camera.X);
    print(camera.Y);
@@ -174,6 +186,8 @@ function draw() {
 
 
 
+	
+
 
 	if (firstgame) {
 
@@ -186,7 +200,7 @@ function draw() {
 		plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
 	} else {
 
-
+		dicesumtext.textSize(48);
 
 		var totalscore = 0;
 		dicesumtext.fill(0);
@@ -200,7 +214,10 @@ function draw() {
 			}
 		}
 
-		dicesumtext.text(totalscore, 150, 150);
+
+		dicesumtext.textSize(72);
+
+		dicesumtext.text(totalscore, 50, 300);
 
 		noStroke();
 		// ambientMaterial(255);
@@ -384,17 +401,18 @@ function draw() {
 		// r and n:
 
 
-		if (mouseY > height - 100) {
-			noppia = map(mouseX,0,width,1,5);
+		if (mouseY > height - 70) {
+			noppia = map(mouseX, 0, width, 1, 5);
+
+
+			firstgame = true;
+
 			NewDices();
 
 
 			for (var i = 0; i < nopat.length; i++) {
 				nopat[i].round();
 			}
-
-
-
 
 			for (var i = 0; i < nopat.length; i++) {
 				nopat[i].start();
