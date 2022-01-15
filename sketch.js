@@ -15,17 +15,26 @@ let vangleX = 0;
 let vangleY = 0;
 let vangleZ = 0;
 
-let start_z = 40;
+let start_z = 700;
+let end_z = 40;
 
+let z_gravity = 3;
+
+let stop_vz = 10;
 
 let dice_size = 80;
 
 let noppia = 3;
 
-let friction = 0.98;
-let friction_table = 0.94;
+let plane_y_size = 800;
+let firstgame = true;
+
+let friction = 0.9999;
+let friction_table = 0.74;
+let kimpoaminen = 0.666;
 let throw_dices_distance = 5;
 let distance_dice = 100;
+let random_speed = 10;
 
 var select_example = 0;
 
@@ -92,11 +101,11 @@ function setup() {
 	// rectMode(CENTER);
 
 	dicesumtext = createGraphics(300, 300);
-	dicesumtext.background(255, 100);
+	dicesumtext.background(0, 50, 0);
 	dicesumtext.fill(255);
 	dicesumtext.textAlign(CENTER);
-	dicesumtext.textSize(64);
-	
+	dicesumtext.textSize(48);
+
 
 	setInterval(timeIt, 100); // https://editor.p5js.org/denaplesk2/sketches/ryIBFP_lG
 
@@ -115,13 +124,13 @@ function setup() {
 
 
 	for (i = 0; i < noppia; i++) {
-		nopat[i] = new Noppa(i, 0, 0, 0 ,0,0,0,0,0,0,0,0,0);
+		nopat[i] = new Noppa(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		nopat[i].start();
 
 	}
 
-	
-	
+
+
 
 }
 
@@ -150,20 +159,40 @@ function draw() {
 	dicesumtext.fill(0);
 
 
-	var totalscore = 0;
-	dicesumtext.fill(0);
-	for (var i = 0; i < nopat.length; i++) {
-		totalscore = totalscore + nopat[i].value;
-		dicesumtext.text(nopat[i].value, distance_dice/2 + i * distance_dice, 50); // note different coordination system
+
+
+	if (firstgame) {
+
+		dicesumtext.textSize(48);
+		dicesumtext.text("(S)hake\ndevice", 150, 40);
+
+		noStroke();
+		// ambientMaterial(255);
+		texture(dicesumtext);
+		plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
+	} else {
+
+
+
+		var totalscore = 0;
+		dicesumtext.fill(0);
+		print(nopat.length);
+		for (var i = 0; i < nopat.length; i++) {
+			totalscore = totalscore + nopat[i].value;
+			if (nopat.length > 1) {
+				// if only one dice no separate values
+				dicesumtext.text(nopat[i].value, distance_dice / 2 + i * distance_dice / (nopat.length * 0.7), 50); // note different coordination system
+
+			}
+		}
+
+		dicesumtext.text(totalscore, 150, 150);
+
+		noStroke();
+		// ambientMaterial(255);
+		texture(dicesumtext);
+		plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
 	}
-
-	dicesumtext.text(totalscore, 150, 150);
-
-	noStroke();
-	// ambientMaterial(255);
-	texture(dicesumtext);
-	plane((noppia + 2)*distance_dice*2, 300);
-
 
 	// push();
 	// translate(0, 0, 0);
@@ -265,7 +294,7 @@ function draw() {
 		directionalLight(122, 122, 122, v);
 
 
-		
+
 
 
 
@@ -290,35 +319,43 @@ function draw() {
 
 
 
-	
+
 
 	}
 
 
 	for (var i = 0; i < nopat.length; i++) {
+
+		var fric = 1;
+		if (nopat[i].z == end_z) {
+			fric = friction_table;
+		} else {
+			fric = friction;
+		}
+
 		nopat[i].ax = nopat[i].ax + nopat[i].vax;
-		nopat[i].vax = nopat[i].vax * friction;
+		nopat[i].vax = nopat[i].vax * fric;
 
 		nopat[i].ay = nopat[i].ay + nopat[i].vay;
-		nopat[i].vay = nopat[i].vay * friction;
+		nopat[i].vay = nopat[i].vay * fric;
 
 		nopat[i].az = nopat[i].az + nopat[i].vaz;
-		nopat[i].vaz = nopat[i].vaz * friction;
+		nopat[i].vaz = nopat[i].vaz * fric;
 
 
 
 		nopat[i].x = nopat[i].x + nopat[i].vx;
-		nopat[i].vx = nopat[i].vx * friction_table;
+		nopat[i].vx = nopat[i].vx * fric;
 
 		nopat[i].y = nopat[i].y + nopat[i].vy;
-		nopat[i].vy = nopat[i].vy * friction_table;
+		nopat[i].vy = nopat[i].vy * fric;
 
 		nopat[i].z = nopat[i].z + nopat[i].vz;
-		nopat[i].vz = nopat[i].vz * friction_table;
+		nopat[i].vz = nopat[i].vz * fric;
 	}
 
 
-	
+
 
 
 	for (var i = 0; i < nopat.length; i++) {
@@ -329,6 +366,30 @@ function draw() {
 	if (touches.length >= 1) {
 		checkTouches();
 		print("kosketus");
+
+		// r and n:
+
+
+		if (mouseY > height - 100) {
+			noppia = map(mouseX,0,width,1,5);
+			NewDices();
+
+
+			for (var i = 0; i < nopat.length; i++) {
+				nopat[i].round();
+			}
+
+
+
+
+			for (var i = 0; i < nopat.length; i++) {
+				nopat[i].start();
+			}
+
+		}
+
+
+
 	}
 
 
@@ -453,6 +514,21 @@ function windowResized() {
 }
 
 
+function NewDices() {
+
+
+
+	for (var i = nopat.length - 1; i >= 0; i--) {
+		nopat.pop();
+	}
+
+	for (i = 0; i < noppia; i++) {
+		nopat[i] = new Noppa(i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		nopat[i].start();
+
+	}
+}
+
 function keyPressed() {
 	//	text("here", random(width), random(height));
 	// https://stackoverflow.com/questions/39730950/javascript-disable-space-scrolling
@@ -468,11 +544,18 @@ function keyPressed() {
 		vangleZ = vangleZ + 1;
 	}
 
+	if (key == 'd') {
+		noppia = noppia % 5 + 1;
+		NewDices();
+
+	}
 
 
 	if (key == 's') {
 		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].start();
 			nopat[i].shake();
+			firstgame = false;
 		}
 	}
 
@@ -526,7 +609,7 @@ class Nappi {
 	}
 
 	show() {
-		
+
 	}
 
 
@@ -550,6 +633,7 @@ class Noppa {
 		this.value = 1;
 		this.image_id = 1;
 		this.size = dice_size;
+		this.ontable = false;
 	}
 
 	show() {
@@ -562,11 +646,11 @@ class Noppa {
 		rotateY(this.ay);
 		rotateZ(this.az);
 
-		
+
 
 		noStroke();
 		//ambientMaterial(0, 0, 255);
-		
+
 
 
 		this.value = floor((this.ax % 60) / 10) + 1;
@@ -581,28 +665,42 @@ class Noppa {
 		//torus(100, 25);
 		box(this.size);
 		pop();
+
+
+
+		if (this.z < end_z) {
+			this.vz = -this.vz * kimpoaminen;
+			if (abs(this.vz) < stop_vz) {
+				this.z = end_z;
+				this.ontable = true;
+				this.vz = 0;
+			}
+		} else if (!this.ontable) {
+			this.vz = this.vz - z_gravity;
+		}
+
 	}
 
 	shake() {
-		this.vax = random(-10,10) + random(70,100);
-		this.vay = random(-30,30);
-		this.vaz = random(-30,30);
+		this.vax = random(-random_speed, random_speed) + random(10, 20);
+		this.vay = random(-random_speed, random_speed);
+		this.vaz = random(-random_speed, random_speed);
 
-		this.vx = random(-throw_dices_distance,throw_dices_distance);
-		this.vy = random(-throw_dices_distance,throw_dices_distance);
-		this.vz = random(0,throw_dices_distance/2);
+		this.vx = random(-throw_dices_distance, throw_dices_distance);
+		this.vy = random(-throw_dices_distance, throw_dices_distance);
+		this.vz = random(-throw_dices_distance / 2, 0);
 
 	}
 
 	round() {
 
 		// angle round:
-		this.ax = round(this.ax/90)*90;
-		this.ay = round(this.ay/90)*90;
-		this.az = round(this.az/90)*90;
+		this.ax = round(this.ax / 90) * 90;
+		this.ay = round(this.ay / 90) * 90;
+		this.az = round(this.az / 90) * 90;
 
 		// this.ax = round(this.ax/1)*1;
-		this.az = round(this.az/1)*1;
+		this.az = round(this.az / 1) * 1;
 
 		this.ax = this.ax % 360;
 		this.ay = this.ay % 360;
@@ -613,14 +711,17 @@ class Noppa {
 	}
 
 	start() {
-		this.x = (this.id-(noppia/2 - 0.5)) * distance_dice;
+		this.x = (this.id - (nopat.length / 2 - 0.5)) * distance_dice;
 		this.y = 0;
 		this.z = start_z;
+		this.ontable = false;
+		this.value = 1;
+		this.image_id = 1;
 	}
 
 	totable() {
 		this.round();
-		this.z = start_z;
+		this.z = end_z;
 	}
 
 
