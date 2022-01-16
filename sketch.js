@@ -18,6 +18,8 @@ let vangleZ = 0;
 let start_z = 700;
 let end_z = 40;
 
+let distance_dice_number_text = 50;
+
 let z_gravity = 3;
 
 let stop_vz = 10;
@@ -26,7 +28,7 @@ let dice_size = 80;
 
 var noppia = 3;
 
-let plane_y_size = 800;
+let plane_y_size = 300;
 var firstgame = true;
 
 let friction = 0.9999;
@@ -163,6 +165,9 @@ function setup() {
 
 
 
+
+
+
 function nollaus() {
 
 
@@ -181,48 +186,60 @@ function draw() {
 	orbitControl();
 	background(25);
 
-	dicesumtext.background(255, 100);
-	dicesumtext.fill(0);
-
-
-
+	dicesumtext.background(0);
 	
 
-
 	if (firstgame) {
+
+
+		dicesumtext.fill(200);
+		dicesumtext.strokeWeight(2);
+		dicesumtext.stroke(0,200,0);
 
 		dicesumtext.textSize(48);
 		dicesumtext.text("(S)hake\ndevice", 150, 40);
 
+
+
 		noStroke();
 		// ambientMaterial(255);
 		texture(dicesumtext);
-		plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
+		// plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
+		plane(plane_y_size, plane_y_size);
 	} else {
 
-		dicesumtext.textSize(48);
+
+		dicesumtext.textAlign(CENTER, CENTER);
+		dicesumtext.textSize(28);
 
 		var totalscore = 0;
-		dicesumtext.fill(0);
+		dicesumtext.fill(70);
 		print(nopat.length);
 		for (var i = 0; i < nopat.length; i++) {
 			totalscore = totalscore + nopat[i].value;
 			if (nopat.length > 1) {
 				// if only one dice no separate values
-				dicesumtext.text(nopat[i].value, distance_dice / 2 + i * distance_dice / (nopat.length * 0.7), 50); // note different coordination system
+				// dicesumtext.text(nopat[i].value, distance_dice / 2 + i * distance_dice / (nopat.length * 0.7), 50); // note different coordination system
+				dicesumtext.text(nopat[i].value, distance_dice_number_text / 2 + i * distance_dice_number_text, 50);
 
 			}
 		}
 
 
 		dicesumtext.textSize(72);
+		dicesumtext.fill(30, 30, 120);
 
-		dicesumtext.text(totalscore, 50, 300);
+		dicesumtext.strokeWeight(2);
+		dicesumtext.stroke(0,200,0);
 
+		dicesumtext.text(totalscore, 150, 150);
+
+		
 		noStroke();
 		// ambientMaterial(255);
 		texture(dicesumtext);
-		plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
+		// plane((nopat.length + 2) * distance_dice * 2, plane_y_size);
+		plane(plane_y_size, plane_y_size);
 	}
 
 	// push();
@@ -633,6 +650,17 @@ document.ontouchmove = function (event) {
 
 
 
+
+class Tilasto {
+	constructor(id_, sum_) {
+		this.id = id_;
+		this.summa = sum_;
+
+	}	
+
+}
+
+
 class Nappi {
 	constructor(id_, name_, key_, x_, y_, size_) {
 		this.id = this.id_;
@@ -708,6 +736,15 @@ class Noppa {
 				this.z = end_z;
 				this.ontable = true;
 				this.vz = 0;
+			} else {
+				// more angle speed: when hit the table:
+				this.vax = this.vax * 2 + random(-random_speed, random_speed);
+				this.vay = this.vay * 2 + random(-random_speed, random_speed);
+				this.vaz = this.vaz * 2 + random(-random_speed, random_speed);
+
+				this.vx = random(-throw_dices_distance, throw_dices_distance);
+				this.vy = random(-throw_dices_distance, throw_dices_distance);
+
 			}
 		} else if (!this.ontable) {
 			this.vz = this.vz - z_gravity;
