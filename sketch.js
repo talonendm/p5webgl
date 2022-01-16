@@ -18,28 +18,35 @@ let vangleZ = 0;
 let start_z = 700;
 let end_z = 40;
 
-let distance_dice_number_text = 50;
+
 
 let z_gravity = 3;
 
 let stop_vz = 10;
 
-let dice_size = 80;
+let dice_size = 70;
+let distance_dice = 100;
 
 var noppia = 3;
+let max_noppia = 9;
 
 let plane_y_size = 300;
 var firstgame = true;
+
+
+let distance_dice_number_text = plane_y_size / (max_noppia + 1);
+
+var all_on_table = false
 
 let friction = 0.9999;
 let friction_table = 0.74;
 let kimpoaminen = 0.666;
 let throw_dices_distance = 5;
-let distance_dice = 100;
+
 let random_speed = 10;
 
 var select_example = 0;
-
+var all_rounded = false;
 
 let myFont;
 
@@ -47,6 +54,7 @@ let usecam = false;
 let useobj = false;
 
 let img;
+let imgs = [];
 let cam;
 
 let kitten;
@@ -57,8 +65,12 @@ let dicesumtext;
 var nopat = [];
 
 function preload() {
-	img1 = loadImage('pics/s1.jpg');
-	img2 = loadImage('pics/s2.jpg');
+	imgs[0] = loadImage('pics/j1.jpg');
+	imgs[1] = loadImage('pics/j2.jpg');
+	imgs[2] = loadImage('pics/j3.jpg');
+	imgs[3] = loadImage('pics/j4.jpg');
+	imgs[4] = loadImage('pics/j5.jpg');
+	imgs[5] = loadImage('pics/j6.jpg');
 	myFont = loadFont('assets/Pokemon Solid.ttf');
 
 	if (useobj) {
@@ -80,9 +92,10 @@ function deviceShaken() {
 		nopat[i].start();
 		nopat[i].shake();
 		firstgame = false;
+		all_on_table = false;
 	}
 
-	
+
 
 }
 
@@ -108,11 +121,11 @@ function setup() {
 	// colorMode(HSB, 360, 100, 100);
 	// rectMode(CENTER);
 
-	dicesumtext = createGraphics(500, 500);
-	dicesumtext.background(0, 50, 0);
-	dicesumtext.fill(255);
+	dicesumtext = createGraphics(plane_y_size, plane_y_size);
+	dicesumtext.background(0, 0, 0);
+	//dicesumtext.fill(255);
 	dicesumtext.textAlign(CENTER);
-	dicesumtext.textSize(48);
+	//dicesumtext.textSize(48);
 
 
 	setInterval(timeIt, 100); // https://editor.p5js.org/denaplesk2/sketches/ryIBFP_lG
@@ -129,7 +142,7 @@ function setup() {
 
 	// print(train);
 
-	let threshold_shake = 20; // 30 default
+	let threshold_shake = 10; // 30 default
 	setShakeThreshold(threshold_shake);
 
 
@@ -140,23 +153,23 @@ function setup() {
 	}
 
 
-// https://stackoverflow.com/questions/68242398/how-to-return-the-camera-position-in-p5js
+	// https://stackoverflow.com/questions/68242398/how-to-return-the-camera-position-in-p5js
 	camera = createCamera();
-  // optionally, call camera() on the instance with the same arguments as the global function
-   // camera.camera([x], [y], [z], [centerX], [centerY], [centerZ], [upX], [upY], [upZ])
+	// optionally, call camera() on the instance with the same arguments as the global function
+	// camera.camera([x], [y], [z], [centerX], [centerY], [centerZ], [upX], [upY], [upZ])
 
 
 
-    camera.lookAt(100, 10, -40);
-    camera.setPosition(sin(0 / 600) * 200 + 400, 200, 800);
+	camera.lookAt(100, 10, -40);
+	camera.setPosition(sin(0 / 600) * 200 + 400, 200, 800);
 
-   print(camera.X);
-   print(camera.Y);
-   print(camera.z);
+	print(camera.X);
+	print(camera.Y);
+	print(camera.z);
 
-   print(camera.centerX);
-   print(camera.centerY);
-   print(camera.centerZ);
+	print(camera.centerX);
+	print(camera.centerY);
+	print(camera.centerZ);
 
 	print(camera.eyeZ);
 
@@ -187,14 +200,14 @@ function draw() {
 	background(25);
 
 	dicesumtext.background(0);
-	
+
 
 	if (firstgame) {
 
 
 		dicesumtext.fill(200);
 		dicesumtext.strokeWeight(2);
-		dicesumtext.stroke(0,200,0);
+		dicesumtext.stroke(0, 200, 0);
 
 		dicesumtext.textSize(48);
 		dicesumtext.text("(S)hake\ndevice", 150, 40);
@@ -230,11 +243,11 @@ function draw() {
 		dicesumtext.fill(30, 30, 120);
 
 		dicesumtext.strokeWeight(2);
-		dicesumtext.stroke(0,200,0);
+		dicesumtext.stroke(0, 200, 0);
 
 		dicesumtext.text(totalscore, 150, 150);
 
-		
+
 		noStroke();
 		// ambientMaterial(255);
 		texture(dicesumtext);
@@ -314,7 +327,7 @@ function draw() {
 
 		noStroke();
 		//ambientMaterial(0, 0, 255);
-		texture(img1);
+		texture(imgs[0]);
 		//torus(100, 25);
 		box(100);
 		pop();
@@ -354,7 +367,7 @@ function draw() {
 			rotateX(angleX);
 			rotateY(angleY);
 			rotateZ(angleZ);
-			texture(img1);
+			texture(imgs[0]);
 
 			ambientLight(100); // white light
 			directionalLight(122, 122, 122, v);
@@ -400,15 +413,65 @@ function draw() {
 
 		nopat[i].z = nopat[i].z + nopat[i].vz;
 		nopat[i].vz = nopat[i].vz * fric;
+
+
 	}
 
 
 
+	for (var i = 1; i < nopat.length; i++) {
+		for (var j = 0; j < i; j++) {
+			nopat[j].overlap = nopat[j].isOver(nopat[i].x, nopat[i].y, nopat[i].z, nopat[i].size);
+			if (nopat[j].overlap) {
+				print("overlap i:" + i + "j:" + j);
+
+				if (nopat[i].overlap_prev) {
+					nopat[i].vx = nopat[i].vx * (-1.01);
+					nopat[i].vy = nopat[i].vy * (-1.01);
+				} else {
+
+					nopat[i].x = nopat[i].x + nopat[i].x * nopat[i].id/10 * (random(0.1, 1.2));
+					nopat[i].y = nopat[i].y + nopat[i].y * nopat[i].id/10 * (random(0.1, 1.2));
+
+					nopat[i].vx = nopat[i].vx + nopat[i].vx * (random(-1, 1.2));
+					nopat[i].vy = nopat[i].vy + nopat[i].vy * (random(-1, 1.2));
+				}
+
+				nopat[i].overlap_prev = true;
+				if (nopat[i].vz < 10) nopat[i].vz = nopat[i].vz + 4;
+				nopat[i].ontable = false;
+			} else {
+				nopat[i].overlap_prev = false;
+			}
+
+		}
+	}
 
 
 	for (var i = 0; i < nopat.length; i++) {
 		nopat[i].show();
+
+
 	}
+
+	let dices_on_table = 0;
+	for (var i = 0; i < nopat.length; i++) {
+		if (nopat[i].ontable) dices_on_table = dices_on_table + 1;
+	}
+
+	print("dices on table" + dices_on_table);
+	if (dices_on_table >= nopat.length) all_on_table = true;
+
+	if (all_on_table & !all_rounded) {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].round(true);
+
+
+
+		}
+	}
+
+
 
 
 	if (touches.length >= 1) {
@@ -419,7 +482,8 @@ function draw() {
 
 
 		if (mouseY > height - 70) {
-			noppia = map(mouseX, 0, width, 1, 5);
+			noppia = map(mouseX, 100, width, 1, max_noppia);
+			if (noppia < 1) noppia = 1;
 
 
 			firstgame = true;
@@ -428,7 +492,7 @@ function draw() {
 
 
 			for (var i = 0; i < nopat.length; i++) {
-				nopat[i].round();
+				nopat[i].round(false);
 			}
 
 			for (var i = 0; i < nopat.length; i++) {
@@ -455,8 +519,15 @@ function touchMoved() {
 			nopat[i].start();
 			nopat[i].shake();
 			firstgame = false;
+			all_on_table = false;
+		}
+	} else if (touches.length == 3) {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].moveontable();
 		}
 	}
+
+	
 
 }
 
@@ -596,23 +667,31 @@ function keyPressed() {
 	}
 
 	if (key == 'd') {
-		noppia = noppia % 5 + 1;
+		noppia = noppia % max_noppia + 1;
 		NewDices();
 
 	}
 
+
+	if (key == 'm') {
+		for (var i = 0; i < nopat.length; i++) {
+			nopat[i].moveontable();
+		}
+
+	}
 
 	if (key == 's') {
 		for (var i = 0; i < nopat.length; i++) {
 			nopat[i].start();
 			nopat[i].shake();
 			firstgame = false;
+			all_on_table = false;
 		}
 	}
 
 	if (key == 'r') {
 		for (var i = 0; i < nopat.length; i++) {
-			nopat[i].round();
+			nopat[i].round(false);
 		}
 	}
 
@@ -656,7 +735,7 @@ class Tilasto {
 		this.id = id_;
 		this.summa = sum_;
 
-	}	
+	}
 
 }
 
@@ -683,6 +762,9 @@ class Noppa {
 		this.x = x_;
 		this.y = y_;
 		this.z = z_;
+		this.x0 = x_;
+		this.y0 = y_;
+		this.z0 = z_;
 		this.vx = vx_;
 		this.vy = vy_;
 		this.vz = vz_;
@@ -696,6 +778,34 @@ class Noppa {
 		this.image_id = 1;
 		this.size = dice_size;
 		this.ontable = false;
+		this.shape = 0;  // 1
+		this.overlap = false;
+		this.overlap_prev = false;
+		this.valuefinal = false;
+	}
+
+
+	isOver = function (x, y, z, size) {
+		var dist2number = dist(x, y, z, this.x, this.y, this.z);
+
+		if (this.shape == 0) {
+			// print(dist2number)
+			if (dist2number < this.size / 2 * 1.41 + size / 2 * 1.41) {
+				return (true);
+			} else {
+				return (false);
+			}
+		}
+
+		if (this.shape == 1) {
+			if (dist2number < this.size / 2 + size / 2) {
+				return (true);
+			} else {
+				return (false);
+			}
+		}
+
+
 	}
 
 	show() {
@@ -715,19 +825,44 @@ class Noppa {
 
 
 
-		this.value = floor((this.ax % 60) / 10) + 1;
-		this.image_id = floor((this.ax % 90) / 45) + 1;
 
-		if (this.image_id == 1) {
-			texture(img1);
-		} else {
-			texture(img2);
+		if (this.ax < 0) this.ax = this.ax + 360 * 10;
+
+		if (!this.valuefinal) {
+			this.value = floor((this.ax % 60) / 10) + 1;
+			if (this.value < 1) this.value = 1;
 		}
+
+
+
+
+		// for some reason angle negative time to time: this.image_id = floor((this.ax % 90) / 45) + 1;
+
+		//if (this.image_id == 1) {
+
+		// print(round(this.value - 1));
+		texture(imgs[round(this.value - 1)]);  // imgs[this.value-1]
+		//} else {
+		//	texture(img2);
+		//}
 		//texture(img1);
 		//torus(100, 25);
-		box(this.size);
+
+		if (this.shape == 0) {
+			box(this.size);
+		} else {
+			sphere(this.size);
+		}
+		//
+
 		pop();
 
+
+		//if (this.isOver()) {
+		//	this.vx = random(-throw_dices_distance, throw_dices_distance);
+		//	this.vy = random(-throw_dices_distance, throw_dices_distance);
+		//	this.vz = this.vy + 10; 
+		//}
 
 
 		if (this.z < end_z) {
@@ -735,7 +870,11 @@ class Noppa {
 			if (abs(this.vz) < stop_vz) {
 				this.z = end_z;
 				this.ontable = true;
+				this.valuefinal = true;
 				this.vz = 0;
+				this.totable();
+				this.round(true);
+				print("poy")
 			} else {
 				// more angle speed: when hit the table:
 				this.vax = this.vax * 2 + random(-random_speed, random_speed);
@@ -753,6 +892,7 @@ class Noppa {
 	}
 
 	shake() {
+		all_rounded = false;
 		this.vax = random(-random_speed, random_speed) + random(10, 20);
 		this.vay = random(-random_speed, random_speed);
 		this.vaz = random(-random_speed, random_speed);
@@ -760,10 +900,31 @@ class Noppa {
 		this.vx = random(-throw_dices_distance, throw_dices_distance);
 		this.vy = random(-throw_dices_distance, throw_dices_distance);
 		this.vz = random(-throw_dices_distance / 2, 0);
+		all_on_table = false;
 
 	}
 
-	round() {
+
+
+	moveontable() {
+
+		let ve0 = createVector(this.x, this.y, 0);
+		let ve2 = createVector(this.x0 - this.x, this.y0 - this.y, 0);
+
+
+		//let angleBetween = ve1.angleBetween(v2);
+		// https://www.youtube.com/watch?v=oXwCVDXS2Lg
+		this.angle = ve2.heading();
+
+
+		this.vx = 5 * cos(this.angle);
+		this.vy = 5 * sin(this.angle);
+
+
+
+	}
+
+	round(setvalue) {
 
 		// angle round:
 		this.ax = round(this.ax / 90) * 90;
@@ -779,6 +940,8 @@ class Noppa {
 
 		print(this.id + ": " + this.ax + "," + this.ay + "," + this.az);
 
+		this.valuefinal = setvalue;
+
 	}
 
 	start() {
@@ -786,12 +949,14 @@ class Noppa {
 		this.y = 0;
 		this.z = start_z;
 		this.ontable = false;
+
 		this.value = 1;
 		this.image_id = 1;
+		this.valuefinal = false;
 	}
 
 	totable() {
-		this.round();
+		this.round(false);
 		this.z = end_z;
 	}
 
