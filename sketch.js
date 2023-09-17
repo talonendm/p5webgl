@@ -514,6 +514,7 @@ function touchMoved() {
 	print("moving");
 
 
+	// TODO: move to checkTouches and test it:
 	if (touches.length == 5) {
 		for (var i = 0; i < nopat.length; i++) {
 			nopat[i].start();
@@ -818,13 +819,8 @@ class Noppa {
 		rotateY(this.ay);
 		rotateZ(this.az);
 
-
-
 		noStroke();
 		//ambientMaterial(0, 0, 255);
-
-
-
 
 		if (this.ax < 0) this.ax = this.ax + 360 * 10;
 
